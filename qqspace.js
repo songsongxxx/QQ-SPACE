@@ -33,7 +33,7 @@ const pivot = new THREE.Group();
 scene.add(pivot);
 
 const loader = new FBXLoader(); // ✅ 正确
-loader.load('public/models/hurtmicee.fbx', function (model) {
+loader.load('/models/hurtmicee.fbx', function (model) {
     model.scale.set(0.1, 0.1, 0.1);  // 根据FBX模型大小调整
     pivot.add(model);
     console.log("✅ 模型加载成功");
