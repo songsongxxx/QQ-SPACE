@@ -37,43 +37,46 @@
             overflow: hidden;
         }
 
-/* 泡泡设计 */
-.bubble {
-    position: absolute;
-    width: 8vw;
-    max-width: 100px;
-    height: 8vw;
-    max-height: 100px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: clamp(6px, 1vw, 12px);
-    text-align: center;
-    color: rgb(252, 252, 255);
-    font-weight: bold;
-    cursor: pointer;
-    padding: 10px;
-    box-shadow: 4px 4px 0px #383838;
+        /* 泡泡设计 */
+        .bubble {
+            position: absolute;
+            width: 8vw;
+            max-width: 100px;
+            height: 8vw;
+            max-height: 100px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(6px, 1vw, 12px);
+            text-align: center;
+            color: rgb(252, 252, 255);
+            font-weight: bold;
+            cursor: pointer;
+            padding: 10px;
+            box-shadow: 4px 4px 0px #383838;
 
-    /* 半透明的背景色 */
-    background: rgba(157, 159, 160, 0.5); /* 背景为半透明 */
-    
-    /* 添加磨砂效果 */
-    backdrop-filter: blur(5px);
+            /* 半透明的背景色 */
+            background: rgba(157, 159, 160, 0.5);
+            /* 背景为半透明 */
 
-        /* 外发光效果（边框替换为外发光） */
-    box-shadow: 0 0 40px 10px rgba(255, 255, 255, 0.7); /* 白色外发光 */
-    transition: all 0.3s ease-in-out;
-}
+            /* 添加磨砂效果 */
+            backdrop-filter: blur(5px);
 
-/* 悬停效果 */
-.bubble:hover {
-    transform: scale(1.15);
-    box-shadow: 5px 5px 0px #666;
-    background: rgba(98, 101, 146, 0.8); /* 悬停时背景色变化，并且保持透明 */
-    color: rgb(160, 159, 179);
-}
+            /* 外发光效果（边框替换为外发光） */
+            box-shadow: 0 0 40px 10px rgba(255, 255, 255, 0.7);
+            /* 白色外发光 */
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* 悬停效果 */
+        .bubble:hover {
+            transform: scale(1.15);
+            box-shadow: 5px 5px 0px #666;
+            background: rgba(98, 101, 146, 0.8);
+            /* 悬停时背景色变化，并且保持透明 */
+            color: rgb(160, 159, 179);
+        }
 
 
         /* 移动端优化 */
@@ -143,73 +146,74 @@
         });
     </script>
 
-<script>
-    // 初始化 Three.js 场景
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    <script>
+        // 初始化 Three.js 场景
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-    // 🌞 添加光照（GLTF 需要光照）
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1); // 环境光
-    scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(5, 10, 7);
-    scene.add(directionalLight);
+        // 🌞 添加光照（GLTF 需要光照）
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1); // 环境光
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(5, 10, 7);
+        scene.add(directionalLight);
 
 
-    // 🎯 加载 GLB 模型
-    const loader = new THREE.GLTFLoader();
-    let model; // 在加载之前定义一个全局变量
+        // 🎯 加载 GLB 模型
+        const loader = new THREE.GLTFLoader();
+        let model; // 在加载之前定义一个全局变量
 
-    loader.load('/public/models/key.glb', function (gltf) {
-        model = gltf.scene;
+        // public是根路径！！！根目录就是部署根（不包含 public/）
+        loader.load('/models/key.glb', function (gltf) {
+            model = gltf.scene;
 
-        model.traverse((child) => {
-            if (child.isMesh) {
-                child.material.transparent = false;
-                child.material.opacity = 1;
-            }
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.transparent = false;
+                    child.material.opacity = 1;
+                }
+            });
+
+            const box = new THREE.Box3().setFromObject(model);
+            const center = new THREE.Vector3();
+            box.getCenter(center);
+            model.position.sub(center);
+
+            const pointLight = new THREE.PointLight(0xffffff, 10);
+            pointLight.position.set(0, 5, 0);
+            scene.add(pointLight);
+
+            model.position.set(0, 0, 0);
+            model.scale.set(10, 10, 10);
+
+            scene.add(model);
+            console.log("✅ Model Loaded:", model);
+            animate();
+        }, undefined, function (error) {
+            console.error("❌ GLB 加载失败:", error);
         });
 
-        const box = new THREE.Box3().setFromObject(model);
-        const center = new THREE.Vector3();
-        box.getCenter(center);
-        model.position.sub(center);
+        function animate() {
+            requestAnimationFrame(animate);
 
-        const pointLight = new THREE.PointLight(0xffffff, 10);
-        pointLight.position.set(0, 5, 0);
-        scene.add(pointLight);
+            // 如果模型已加载，将其旋转
+            if (model) {
+                model.rotation.y += 0.01; // 每帧绕 Y 轴旋转 0.01 弧度
+            }
 
-        model.position.set(0, 0, 0);
-        model.scale.set(10, 10, 10);
-
-        scene.add(model);
-        console.log("✅ Model Loaded:", model);
-        animate();
-    }, undefined, function (error) {
-        console.error("❌ GLB 加载失败:", error);
-    });
-
-    function animate() {
-        requestAnimationFrame(animate);
-
-        // 如果模型已加载，将其旋转
-        if (model) {
-            model.rotation.y += 0.01; // 每帧绕 Y 轴旋转 0.01 弧度
+            renderer.render(scene, camera);
         }
 
-        renderer.render(scene, camera);
-    }
+        // 🔄 监听窗口大小调整
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });</script>
 
-    // 🔄 监听窗口大小调整
-    window.addEventListener('resize', () => {
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-    });</script>
-    
 
 
 </body>
