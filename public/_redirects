@@ -1,8 +1,1 @@
-# 所有 src 中的请求保持路径结构
-/src/*     /src/:splat   200
-
-# 其他 .html 文件照常返回自己
-/*.html    /:splat.html  200
-
-# 所有不带扩展名的路径才 fallback 到 index.html
-/!(*.html) /index.html   200
+/*.html   /:splat.html   200
