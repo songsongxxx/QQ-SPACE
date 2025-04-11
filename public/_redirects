@@ -1,9 +1,1 @@
-# 如果你有页面放在 src 里（已废弃的话可以删）
-# /src/*    /src/:splat   200
-
-# 不需要任何 html fallback！所以删除或注释掉：
-# /*.html   /:splat.html  200
-
-# 删除这个也很关键：
-# /*        /index.html   200
 
